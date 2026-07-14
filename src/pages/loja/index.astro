@@ -1,0 +1,140 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ProductCard from '../../components/commerce/ProductCard.astro';
+import { produtos, categorias } from '../../data/produtos';
+---
+
+<Layout
+  title="Sabores — Besties Cookie'n Brownie"
+  description="Escolha entre nossos cookies artesanais mega recheados, assados no dia."
+>
+  <section class="shop container">
+    <header class="shop__head">
+      <p class="shop__eyebrow" data-reveal>O cardápio</p>
+      <h1 class="shop__title" data-reveal data-reveal-delay="0.08">
+        Escolha seu <span class="display-3d">vício</span>
+      </h1>
+      <p class="shop__lead" data-reveal data-reveal-delay="0.16">
+        Todos assados no dia, recheados até a borda. Adicione ao carrinho e monte seu combo.
+      </p>
+
+      <div class="shop__filters" data-reveal data-reveal-delay="0.24" role="tablist" aria-label="Filtrar por categoria">
+        <button class="chip is-active" data-filter="all" type="button">Todos</button>
+        {categorias.map((c) => (
+          <button class="chip" data-filter={c.slug} type="button">{c.label}</button>
+        ))}
+      </div>
+    </header>
+
+    <div class="shop__grid" data-shop-grid>
+      {produtos.map((p) => (
+        <div class="shop__cell" data-tags={p.tags.join(' ')} data-reveal>
+          <ProductCard product={p} />
+        </div>
+      ))}
+    </div>
+
+    <p class="shop__empty" data-shop-empty hidden>Nenhum cookie nessa categoria (ainda 😋).</p>
+  </section>
+</Layout>
+
+<style>
+  .shop { padding-block: var(--space-2xl) var(--space-3xl); }
+  .shop__head { text-align: center; margin-bottom: var(--space-2xl); }
+  .shop__eyebrow {
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-primary);
+    font-size: var(--step--1);
+  }
+  .shop__title { font-size: var(--step-5); margin: var(--space-xs) 0 var(--space-md); }
+  .shop__lead { max-width: 52ch; margin: 0 auto; color: var(--color-ink-soft); font-size: var(--step-1); }
+
+  .shop__filters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-sm);
+    margin-top: var(--space-xl);
+  }
+  .chip {
+    border: 2px solid var(--color-border-strong);
+    background: transparent;
+    color: var(--color-ink-soft);
+    font-weight: var(--weight-bold);
+    font-size: var(--step--1);
+    padding: 0.5rem 1.1rem;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: background 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out, transform 0.12s var(--ease-squish);
+  }
+  .chip:hover { border-color: var(--color-secondary); color: var(--color-secondary); }
+  .chip:active { transform: scale(0.96); }
+  .chip.is-active {
+    background: var(--color-secondary);
+    border-color: var(--color-secondary);
+    color: var(--color-on-secondary);
+  }
+
+  .shop__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--space-lg);
+    align-items: stretch;
+  }
+  .shop__cell { display: flex; }
+  .shop__cell.is-hidden { display: none; }
+
+  .shop__empty { text-align: center; color: var(--color-ink-soft); padding: var(--space-2xl); }
+</style>
+
+<script>
+  import { initSmoothScroll } from '../../animations/smoothScroll';
+  import { initScrollScenes } from '../../animations/scrollScene';
+
+  // Sem splash na loja: inicializa o scroll direto.
+  let booted = false;
+  const boot = () => {
+    if (booted) return;
+    booted = true;
+    initSmoothScroll();
+    initScrollScenes();
+  };
+  if (document.readyState !== 'loading') boot();
+  else document.addEventListener('DOMContentLoaded', boot);
+  window.addEventListener('load', () => window.setTimeout(boot, 100));
+
+  // Safety anti-flash dos reveals.
+  window.addEventListener('load', () => {
+    window.setTimeout(() => {
+      document.querySelectorAll<HTMLElement>('[data-reveal]').forEach((el) => {
+        if (getComputedStyle(el).opacity === '0') {
+          el.style.opacity = '1';
+          el.style.transform = 'none';
+        }
+      });
+    }, 2800);
+  });
+
+  // --- Filtro por categoria -------------------------------------------------
+  const chips = document.querySelectorAll<HTMLButtonElement>('.chip[data-filter]');
+  const cells = document.querySelectorAll<HTMLElement>('.shop__cell');
+  const emptyMsg = document.querySelector<HTMLElement>('[data-shop-empty]');
+
+  chips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      const filter = chip.dataset.filter!;
+      chips.forEach((c) => c.classList.toggle('is-active', c === chip));
+
+      let visible = 0;
+      cells.forEach((cell) => {
+        const tags = (cell.dataset.tags ?? '').split(' ');
+        const show = filter === 'all' || tags.includes(filter);
+        cell.classList.toggle('is-hidden', !show);
+        if (show) visible++;
+      });
+      if (emptyMsg) emptyMsg.hidden = visible > 0;
+    });
+  });
+</script>

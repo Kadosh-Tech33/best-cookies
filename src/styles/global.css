@@ -1,0 +1,171 @@
+/* ============================================================================
+   BESTIES — Global base
+   Ordem importa: tokens primeiro, depois Tailwind, depois base própria.
+   Fontes self-hosted via Fontsource (instalar deps — ver nota no chat).
+   ============================================================================ */
+
+/* Fontes variáveis self-hosted (sem render-block do Google) */
+@import '@fontsource-variable/baloo-2';
+@import '@fontsource-variable/plus-jakarta-sans';
+
+/* Tokens = fonte da verdade */
+@import './tokens.css';
+
+/* Tailwind */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- Reset moderno enxuto ------------------------------------------------- */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  * {
+    margin: 0;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+
+  body {
+    min-height: 100dvh;
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: var(--step-0);
+    line-height: var(--leading-normal);
+    font-weight: var(--weight-regular);
+    /* leve textura de papel/baunilha */
+    background-image: radial-gradient(
+      rgb(var(--besties-grape-900-rgb) / 0.025) 1px,
+      transparent 1px
+    );
+    background-size: 22px 22px;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    font-weight: 800; /* Baloo 2 ExtraBold = cara da logo */
+    text-wrap: balance;
+  }
+
+  p { text-wrap: pretty; }
+
+  img, picture, svg, video {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button, input, select, textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-ink);
+  }
+}
+
+/* --- Utilitário de container --------------------------------------------- */
+@layer components {
+  .container {
+    width: 100%;
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: var(--container-pad);
+  }
+  .container--narrow { max-width: var(--container-narrow); }
+
+  /* --- Assinatura da marca: lettering 3D da logo ------------------------- */
+  /* Amarelo com sombra dura laranja-avermelhada deslocada (como "BESTIES"). */
+  .wordmark {
+    font-family: var(--font-display);
+    font-weight: 800;
+    color: rgb(var(--besties-butter-400-rgb));
+    text-shadow:
+      0.028em 0.028em 0 rgb(var(--besties-caramel-500-rgb)),
+      0.056em 0.056em 0 rgb(var(--besties-caramel-600-rgb));
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+
+  /* Sombra 3D reutilizável para títulos de destaque (não a cor). */
+  .display-3d {
+    text-shadow:
+      0.03em 0.035em 0 rgb(var(--besties-caramel-600-rgb));
+  }
+}
+
+/* --- Lenis (smooth scroll) ------------------------------------------------ */
+html.lenis,
+html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+.lenis.lenis-smooth iframe { pointer-events: none; }
+
+/* --- Trava de scroll durante o splash ------------------------------------ */
+html.is-splashing,
+html.is-splashing body { overflow: hidden; height: 100%; }
+
+/* --- Anti-flash dos reveals (só quando há JS) ----------------------------- */
+/* Escondemos antes do GSAP assumir; sem JS, tudo aparece normalmente. */
+.js [data-reveal] { opacity: 0; will-change: opacity, transform; }
+
+/* --- Suavização base dos interativos -------------------------------------- */
+/* Por PROPRIEDADE (nunca `all`): evita jank de layout e preserva o timing
+   próprio de cada componente (ex.: o "squish" rápido do botão, que define
+   sua própria transição com maior especificidade e continua snappy). */
+@layer base {
+  a,
+  button,
+  [role='button'],
+  summary,
+  input,
+  select,
+  textarea {
+    transition-property: color, background-color, border-color, box-shadow, opacity, outline-color;
+    transition-duration: 0.3s;
+    transition-timing-function: var(--ease-out);
+  }
+}
+
+/* --- Reduced-motion: desliga MOVIMENTO, mantém micro-transições ----------- */
+/* Desliga animações keyframe (splash pop, badge girando, bob) e scroll suave.
+   As transições curtas de cor/opacidade seguem — hover continua suave. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}

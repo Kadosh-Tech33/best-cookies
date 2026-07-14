@@ -1,0 +1,154 @@
+---
+/**
+ * ProductCard — card de listagem de um cookie.
+ * Usa o átomo Card como base. Botão "Adicionar" dispara addItem() via
+ * delegação de evento (script hoisteado roda 1x, cobre todos os cards).
+ */
+import Card from '../ui/Card.astro';
+import Button from '../ui/Button.astro';
+import { formatBRL, categorias, IMG_FALLBACK, type Product } from '../../data/produtos';
+
+interface Props {
+  product: Product;
+}
+const { product: p } = Astro.props;
+
+const catLabel = (slug: string) => categorias.find((c) => c.slug === slug)?.label ?? slug;
+
+// Fallback de imagem: placeholder da própria marca (nunca imagem aleatória).
+const fallback = IMG_FALLBACK;
+---
+
+<Card variant="elevated" class="product">
+  <Fragment slot="media">
+    <img
+      class="product__img"
+      src={p.image}
+      alt={`Cookie ${p.name}`}
+      width="600"
+      height="450"
+      loading="lazy"
+      decoding="async"
+      data-fallback={fallback}
+      onerror="this.onerror=null; this.src=this.dataset.fallback;"
+    />
+    {p.badge && <span class="product__badge">{p.badge}</span>}
+  </Fragment>
+
+  <div class="product__tags">
+    {p.tags.map((t) => <span class="product__tag">{catLabel(t)}</span>)}
+  </div>
+  <h3 class="product__name">{p.name}</h3>
+  <p class="product__desc">{p.description}</p>
+
+  <Fragment slot="footer">
+    <span class="product__price">{formatBRL(p.priceCents)}</span>
+    <Button
+      variant="primary"
+      size="sm"
+      data-add-to-cart
+      data-id={p.id}
+      data-name={p.name}
+      data-price={p.priceCents}
+      data-image={p.image}
+    >
+      Adicionar
+    </Button>
+  </Fragment>
+</Card>
+
+<style>
+  .product { height: 100%; }
+
+  /* levanta o card no hover (não é link, então o lift é decorativo) */
+  .product:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+  .product:hover :global(.card__media img) { transform: scale(1.05); }
+
+  .product__badge {
+    position: absolute;
+    top: var(--space-sm);
+    left: var(--space-sm);
+    z-index: 2;
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: var(--step--1);
+    padding: 0.25rem 0.7rem;
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .product__tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .product__tag {
+    font-size: 0.72rem;
+    font-weight: var(--weight-semibold);
+    color: var(--color-secondary);
+    background: var(--color-surface-tint);
+    padding: 0.15rem 0.6rem;
+    border-radius: var(--radius-pill);
+  }
+
+  .product__name { font-size: var(--step-1); line-height: 1.15; }
+  .product__desc {
+    color: var(--color-ink-soft);
+    font-size: var(--step--1);
+    line-height: 1.45;
+  }
+
+  .product__price {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: var(--step-2);
+    color: var(--color-secondary);
+  }
+
+  /* feedback do botão ao adicionar */
+  :global(.btn.is-added) {
+    background-color: var(--color-secondary) !important;
+    border-color: var(--color-secondary) !important;
+    color: var(--color-on-secondary) !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .product:hover { transform: none; }
+    .product:hover :global(.card__media img) { transform: none; }
+  }
+</style>
+
+<script>
+  import { addItem, openCart } from '../../store/cartStore';
+  import { showToast } from '../../lib/toast';
+
+  // Delegação: um listener cobre todos os ProductCards da página.
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const btn = target.closest<HTMLElement>('[data-add-to-cart]');
+    if (!btn) return;
+
+    addItem({
+      id: btn.dataset.id!,
+      name: btn.dataset.name!,
+      priceCents: Number(btn.dataset.price),
+      image: btn.dataset.image!,
+    });
+
+    // Feedback global: toast (some em 3s, dedupe com contador).
+    showToast('Adicionado ao carrinho! 🍪', {
+      variant: 'grape',
+      action: { label: 'Ver carrinho', onClick: openCart },
+    });
+
+    // micro-feedback local no próprio botão
+    const label = btn.querySelector('.btn__label');
+    if (label && !btn.classList.contains('is-added')) {
+      const prev = label.textContent;
+      label.textContent = 'Adicionado ✓';
+      btn.classList.add('is-added');
+      window.setTimeout(() => {
+        label.textContent = prev;
+        btn.classList.remove('is-added');
+      }, 1200);
+    }
+  });
+</script>

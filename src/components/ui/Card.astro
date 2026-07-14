@@ -1,0 +1,171 @@
+---
+/**
+ * Card — superfície base da Besties.
+ * Variantes de elevação + assinatura opcional "bite" (mordida de cookie no canto).
+ * Polimórfico: vira <a> clicável se `href` for passado.
+ *
+ * Slots: default | "media" (topo, ex.: foto do cookie) | "footer"
+ *
+ * @example
+ *   <Card variant="elevated" interactive bite>
+ *     <img slot="media" src="..." alt="Cookie de Nutella" />
+ *     <h3>Nutella Overload</h3>
+ *     <p>Recheio duplo de avelã.</p>
+ *     <div slot="footer">R$ 18,90</div>
+ *   </Card>
+ */
+interface Props {
+  variant?: 'solid' | 'outline' | 'elevated' | 'tint';
+  padding?: 'none' | 'sm' | 'md' | 'lg';
+  radius?: 'md' | 'lg' | 'xl';
+  interactive?: boolean; // hover-lift + cursor
+  bite?: boolean;        // assinatura: canto mordido
+  href?: string;
+  as?: 'div' | 'article' | 'section' | 'li';
+  class?: string;
+  [key: string]: any;
+}
+
+const {
+  variant = 'solid',
+  padding = 'md',
+  radius = 'lg',
+  interactive = false,
+  bite = false,
+  href,
+  as = 'article',
+  class: className = '',
+  ...rest
+} = Astro.props;
+
+const Tag = href ? 'a' : as;
+const isInteractive = interactive || Boolean(href);
+const hasMedia = Astro.slots.has('media');
+const hasFooter = Astro.slots.has('footer');
+---
+
+<Tag
+  class:list={[
+    'card',
+    `card--${variant}`,
+    `card--pad-${padding}`,
+    `card--radius-${radius}`,
+    { 'card--interactive': isInteractive, 'card--bite': bite, 'card--has-media': hasMedia },
+    className,
+  ]}
+  {...(href ? { href } : {})}
+  {...rest}
+>
+  {hasMedia && (
+    <div class="card__media">
+      <slot name="media" />
+    </div>
+  )}
+
+  <div class="card__body">
+    <slot />
+  </div>
+
+  {hasFooter && (
+    <div class="card__footer">
+      <slot name="footer" />
+    </div>
+  )}
+</Tag>
+
+<style>
+  .card {
+    --_bg: var(--color-surface);
+    --_border: transparent;
+    --_shadow: var(--shadow-sm);
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--_bg);
+    border: 1px solid var(--_border);
+    box-shadow: var(--_shadow);
+    overflow: hidden;
+    isolation: isolate;
+    transition:
+      transform var(--dur-hover) var(--ease-in-out),
+      box-shadow var(--dur-hover) var(--ease-in-out),
+      border-color var(--dur-hover) var(--ease-in-out);
+  }
+
+  /* raios */
+  .card--radius-md { border-radius: var(--radius-md); }
+  .card--radius-lg { border-radius: var(--radius-lg); }
+  .card--radius-xl { border-radius: var(--radius-xl); }
+
+  /* variantes */
+  .card--solid    { --_bg: var(--color-surface); }
+  .card--tint     { --_bg: var(--color-surface-tint); --_shadow: none; }
+  .card--outline  { --_bg: var(--color-surface); --_border: var(--color-border); --_shadow: none; }
+  .card--elevated { --_bg: var(--color-surface); --_shadow: var(--shadow-md); }
+
+  /* padding do corpo */
+  .card--pad-none .card__body { padding: 0; }
+  .card--pad-sm   .card__body { padding: var(--space-md); }
+  .card--pad-md   .card__body { padding: var(--space-lg); }
+  .card--pad-lg   .card__body { padding: var(--space-xl); }
+
+  .card__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    flex: 1;
+  }
+
+  /* mídia no topo (foto do cookie) — proporção estável evita CLS */
+  .card__media {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--color-surface-tint);
+  }
+  .card__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--dur-hover) var(--ease-in-out);
+  }
+
+  /* rodapé (ex.: preço + CTA) */
+  .card__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    padding: 0 var(--space-lg) var(--space-lg);
+  }
+  .card--pad-sm  .card__footer { padding: 0 var(--space-md) var(--space-md); }
+  .card--pad-lg  .card__footer { padding: 0 var(--space-xl) var(--space-xl); }
+  .card--pad-none .card__footer { padding: 0; }
+
+  /* interativo: hover-lift + zoom da mídia */
+  .card--interactive { cursor: pointer; }
+  .card--interactive:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+  }
+  .card--interactive:hover .card__media :global(img) { transform: scale(1.06); }
+  .card--interactive:focus-visible {
+    outline: 3px solid var(--color-ring);
+    outline-offset: 3px;
+  }
+
+  /* --- assinatura: "mordida de cookie" no canto superior direito --- */
+  .card--bite {
+    -webkit-mask:
+      radial-gradient(28px at calc(100% - 6px) 6px, transparent 96%, #000 100%);
+    mask:
+      radial-gradient(28px at calc(100% - 6px) 6px, transparent 96%, #000 100%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card,
+    .card--interactive:hover { transform: none; }
+    .card--interactive:hover .card__media :global(img) { transform: none; }
+  }
+</style>

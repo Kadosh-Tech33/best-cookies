@@ -1,0 +1,243 @@
+---
+/**
+ * / — ONE-PAGE (SPA-like) da Besties.
+ * Splash overlay (chuva de cookies ~3s) cobre a Hero, faz fade-out e REVELA
+ * a página (sem redirect). Abaixo: Hero + Catálogo (#sabores) + Como funciona
+ * (#como-funciona) + Sobre (#sobre) + Contato (#contato). Tudo no mesmo arquivo.
+ */
+import Layout from '../layouts/Layout.astro';
+import Splash from '../components/layout/Splash.astro';
+import Hero from '../components/sections/Hero.astro';
+import ProductCard from '../components/commerce/ProductCard.astro';
+import { produtos, categorias } from '../data/produtos';
+
+const steps = [
+  { n: '01', t: 'Escolha a massa', d: 'Tradicional, red velvet ou brownie. Todas assadas no dia.' },
+  { n: '02', t: 'Capriche no recheio', d: 'Nutella, brigadeiro, pistache… recheio generoso até a borda.' },
+  { n: '03', t: 'Receba fresquinho', d: 'Entrega refrigerada pra chegar do jeitinho que saiu do forno.' },
+];
+---
+
+<Layout
+  title="Besties Cookie'n Brownie — cookies mega recheados"
+  description="Cookies artesanais mega recheados, assados no dia. Monte o seu e receba fresquinho."
+>
+  <!-- Splash overlay: roda ~3s, some em fade e revela a Hero por baixo -->
+  <Splash />
+
+  <!-- Hero -->
+  <Hero />
+
+  <!-- Catálogo -->
+  <section id="sabores" class="cat">
+    <div class="container">
+      <header class="cat__head">
+        <p class="cat__eyebrow" data-reveal>O cardápio</p>
+        <h2 class="cat__title" data-reveal data-reveal-delay="0.08">Escolha seu <span class="display-3d">vício</span></h2>
+        <div class="cat__filters" data-reveal data-reveal-delay="0.16" role="tablist" aria-label="Filtrar por categoria">
+          <button class="chip is-active" data-filter="all" type="button">Todos</button>
+          {categorias.map((c) => (
+            <button class="chip" data-filter={c.slug} type="button">{c.label}</button>
+          ))}
+        </div>
+      </header>
+
+      <div class="cat__grid" data-cat-grid>
+        {produtos.map((p) => (
+          <div class="cat__cell" data-tags={p.tags.join(' ')} data-reveal>
+            <ProductCard product={p} />
+          </div>
+        ))}
+      </div>
+      <p class="cat__empty" data-cat-empty hidden>Nenhum cookie nessa categoria (ainda 😋).</p>
+    </div>
+  </section>
+
+  <!-- Como funciona -->
+  <section id="como-funciona" class="how">
+    <div class="container">
+      <p class="how__eyebrow" data-reveal>Como funciona</p>
+      <h2 class="how__title" data-reveal data-reveal-delay="0.08">Do forno até você em 3 passos</h2>
+      <div class="how__grid">
+        {steps.map((s, i) => (
+          <article class="step" data-reveal data-reveal-delay={String(0.1 * i)}>
+            <span class="step__n">{s.n}</span>
+            <h3 class="step__t">{s.t}</h3>
+            <p class="step__d">{s.d}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Sobre -->
+  <section id="sobre" class="about">
+    <div class="container about__inner">
+      <div class="about__text">
+        <p class="about__eyebrow" data-reveal>Nossa história</p>
+        <h2 class="about__title" data-reveal data-reveal-delay="0.08">Feito com massa de verdade, do jeito artesanal</h2>
+        <p class="about__p" data-reveal data-reveal-delay="0.16">
+          A Besties nasceu da obsessão por um cookie que fosse macio por dentro, crocante na borda e
+          recheado sem medo. Nada de pré-pronto: massa batida na hora, chocolate de verdade e recheio
+          generoso até a última mordida.
+        </p>
+        <p class="about__p" data-reveal data-reveal-delay="0.24">
+          Cada fornada sai no dia e vai refrigerada até a sua porta — porque cookie bom é cookie fresco.
+        </p>
+      </div>
+      <div class="about__badges" data-reveal data-reveal-delay="0.2" aria-hidden="true">
+        <span class="about__badge">🍪 Assado no dia</span>
+        <span class="about__badge">🍫 Chocolate de verdade</span>
+        <span class="about__badge">🚚 Entrega refrigerada</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contato -->
+  <section id="contato" class="contact">
+    <div class="container contact__inner">
+      <p class="contact__eyebrow" data-reveal>Fale com a gente</p>
+      <h2 class="contact__title" data-reveal data-reveal-delay="0.08">Bateu a vontade? Chama a Besties 🍪</h2>
+      <p class="contact__lead" data-reveal data-reveal-delay="0.16">
+        Pedidos, encomendas para festas ou só um oi — a gente responde rapidinho.
+      </p>
+      <div class="contact__actions" data-reveal data-reveal-delay="0.24">
+        <a class="contact__wa" href="https://wa.me/5511000000000" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+        <a class="contact__mail" href="mailto:oi@besties.com.br">oi@besties.com.br</a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* offset do header sticky ao pular por âncora */
+  #sabores, #como-funciona, #sobre, #contato { scroll-margin-top: 90px; }
+
+  /* --- Catálogo --- */
+  .cat { padding-block: var(--space-3xl); }
+  .cat__head { text-align: center; margin-bottom: var(--space-2xl); }
+  .cat__eyebrow { font-weight: var(--weight-bold); letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--color-primary); font-size: var(--step--1); }
+  .cat__title { font-size: var(--step-5); margin: var(--space-xs) 0 var(--space-lg); }
+  .cat__filters { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-sm); }
+  .chip {
+    border: 2px solid var(--color-border-strong);
+    background: transparent; color: var(--color-ink-soft);
+    font-weight: var(--weight-bold); font-size: var(--step--1);
+    padding: 0.5rem 1.1rem; border-radius: var(--radius-pill); cursor: pointer;
+    transition: background 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out, transform 0.12s var(--ease-squish);
+  }
+  .chip:hover { border-color: var(--color-secondary); color: var(--color-secondary); }
+  .chip:active { transform: scale(0.96); }
+  .chip.is-active { background: var(--color-secondary); border-color: var(--color-secondary); color: var(--color-on-secondary); }
+
+  .cat__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: var(--space-lg); align-items: stretch; }
+  .cat__cell { display: flex; }
+  .cat__cell.is-hidden { display: none; }
+  .cat__empty { text-align: center; color: var(--color-ink-soft); padding: var(--space-2xl); }
+
+  /* --- Como funciona --- */
+  .how { padding-block: var(--space-3xl); text-align: center; background: var(--color-bg-alt); }
+  .how__eyebrow { font-weight: var(--weight-bold); letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--color-primary); font-size: var(--step--1); }
+  .how__title { font-size: var(--step-4); margin: var(--space-sm) 0 var(--space-2xl); }
+  .how__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-lg); text-align: left; }
+  .step { background: var(--color-surface); border-radius: var(--radius-lg); padding: var(--space-xl); box-shadow: var(--shadow-sm); border-top: 4px solid var(--color-accent); }
+  .step__n { font-family: var(--font-display); font-weight: 800; font-size: var(--step-3); color: var(--color-secondary); }
+  .step__t { font-size: var(--step-1); margin: var(--space-xs) 0; }
+  .step__d { color: var(--color-ink-soft); font-size: var(--step--1); }
+
+  /* --- Sobre --- */
+  .about { padding-block: var(--space-3xl); }
+  .about__inner { display: grid; grid-template-columns: 1.4fr 1fr; gap: var(--space-2xl); align-items: center; }
+  .about__eyebrow { font-weight: var(--weight-bold); letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--color-primary); font-size: var(--step--1); }
+  .about__title { font-size: var(--step-4); margin: var(--space-xs) 0 var(--space-lg); }
+  .about__p { color: var(--color-ink-soft); font-size: var(--step-1); margin-bottom: var(--space-md); max-width: 60ch; }
+  .about__badges { display: flex; flex-direction: column; gap: var(--space-md); }
+  .about__badge {
+    background: var(--color-surface-tint); color: var(--color-secondary);
+    font-weight: var(--weight-bold); font-size: var(--step-0);
+    padding: var(--space-md) var(--space-lg); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xs);
+  }
+
+  /* --- Contato --- */
+  .contact { padding-block: var(--space-3xl); background: rgb(var(--besties-grape-500-rgb)); color: var(--color-on-dark); text-align: center; }
+  .contact__eyebrow { font-weight: var(--weight-bold); letter-spacing: var(--tracking-wide); text-transform: uppercase; color: rgb(var(--besties-butter-400-rgb)); font-size: var(--step--1); }
+  .contact__title { font-size: var(--step-4); margin: var(--space-sm) 0 var(--space-md); }
+  .contact__lead { color: rgb(var(--besties-cream-50-rgb) / 0.85); font-size: var(--step-1); max-width: 46ch; margin: 0 auto var(--space-xl); }
+  .contact__actions { display: flex; gap: var(--space-md); justify-content: center; flex-wrap: wrap; align-items: center; }
+  .contact__wa {
+    background: var(--color-primary); color: var(--color-on-primary);
+    font-weight: var(--weight-bold); font-size: var(--step-1);
+    padding: 1rem 2.2rem; border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-primary);
+    transition: transform 0.12s var(--ease-squish), background 0.3s ease-in-out;
+  }
+  .contact__wa:hover { background: var(--color-primary-hover); }
+  .contact__wa:active { transform: scale(0.97); }
+  .contact__mail { color: rgb(var(--besties-cream-50-rgb) / 0.9); font-weight: var(--weight-semibold); border-bottom: 2px solid rgb(var(--besties-butter-400-rgb)); }
+
+  @media (max-width: 860px) {
+    .how__grid { grid-template-columns: 1fr; }
+    .about__inner { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+  import { initSmoothScroll, getLenis } from '../animations/smoothScroll';
+  import { initScrollScenes } from '../animations/scrollScene';
+
+  // ---- Boot do scroll (após o splash revelar) ------------------------------
+  let booted = false;
+  const boot = () => {
+    if (booted) return;
+    booted = true;
+    initSmoothScroll();
+    initScrollScenes();
+  };
+  if (document.documentElement.classList.contains('splash-done')) boot();
+  document.addEventListener('splash:done', boot, { once: true });
+  window.addEventListener('load', () => window.setTimeout(boot, 100));
+  window.setTimeout(boot, 3600); // rede final (splash ~3s)
+
+  // ---- Scroll suave por âncora (menu → seções), respeitando header sticky --
+  document.addEventListener('click', (e) => {
+    const a = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[href^="#"]');
+    if (!a) return;
+    const id = a.getAttribute('href');
+    if (!id || id === '#') return;
+    const target = document.querySelector(id);
+    if (!target) return;
+    e.preventDefault();
+    const lenis = getLenis();
+    if (lenis) lenis.scrollTo(target as HTMLElement, { offset: -80 });
+    else (target as HTMLElement).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  // ---- Filtro do catálogo (imediato) ---------------------------------------
+  const chips = document.querySelectorAll<HTMLButtonElement>('.chip[data-filter]');
+  const cells = document.querySelectorAll<HTMLElement>('.cat__cell');
+  const emptyMsg = document.querySelector<HTMLElement>('[data-cat-empty]');
+  chips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      const filter = chip.dataset.filter!;
+      chips.forEach((c) => c.classList.toggle('is-active', c === chip));
+      let visible = 0;
+      cells.forEach((cell) => {
+        const tags = (cell.dataset.tags ?? '').split(' ');
+        const show = filter === 'all' || tags.includes(filter);
+        cell.classList.toggle('is-hidden', !show);
+        if (show) visible++;
+      });
+      if (emptyMsg) emptyMsg.hidden = visible > 0;
+    });
+  });
+
+  // ---- Safety anti-flash dos reveals ---------------------------------------
+  window.addEventListener('load', () => {
+    window.setTimeout(() => {
+      document.querySelectorAll<HTMLElement>('[data-reveal]').forEach((el) => {
+        if (getComputedStyle(el).opacity === '0') { el.style.opacity = '1'; el.style.transform = 'none'; }
+      });
+    }, 3400);
+  });
+</script>

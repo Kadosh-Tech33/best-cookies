@@ -1,0 +1,202 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Button from '../components/ui/Button.astro';
+import Card from '../components/ui/Card.astro';
+
+const palette = [
+  { name: 'grape-500 · roxo oficial', varName: '--besties-grape-500-rgb', hex: '#7E0090', dark: true },
+  { name: 'grape-700 · profundo', varName: '--besties-grape-700-rgb', hex: '#5C006B', dark: true },
+  { name: 'grape-900 · tinta', varName: '--besties-grape-900-rgb', hex: '#2D0335', dark: true },
+  { name: 'grape-100 · superfície', varName: '--besties-grape-100-rgb', hex: '#F5E1F9', dark: false },
+  { name: 'butter-400 · amarelo', varName: '--besties-butter-400-rgb', hex: '#FAC100', dark: false },
+  { name: 'butter-200 · subtítulo', varName: '--besties-butter-200-rgb', hex: '#FBD13B', dark: false },
+  { name: 'caramel-500 · CTA', varName: '--besties-caramel-500-rgb', hex: '#FF6A00', dark: false },
+  { name: 'caramel-600 · press', varName: '--besties-caramel-600-rgb', hex: '#FA4000', dark: false },
+  { name: 'cream-50 · papel', varName: '--besties-cream-50-rgb', hex: '#FFF7EC', dark: false },
+  { name: 'cocoa-800 · cacau', varName: '--besties-cocoa-800-rgb', hex: '#3B2314', dark: true },
+];
+
+const typeScale = [
+  { step: 'step-6', label: 'Display / Hero', sample: 'Mega recheado' },
+  { step: 'step-4', label: 'Título de seção', sample: 'Nossos sabores' },
+  { step: 'step-2', label: 'Subtítulo', sample: 'Assado no dia' },
+  { step: 'step-0', label: 'Corpo de texto', sample: 'Massa de verdade, recheio generoso e entrega fresquinha.' },
+  { step: 'step--1', label: 'Legenda / caption', sample: 'a partir de R$ 14,90' },
+];
+
+const cookieImg =
+  'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=800&q=80&auto=format&fit=crop';
+---
+
+<Layout title="Style Guide — Besties" description="Sistema de design vivo da Besties Cookie'n Brownie." noindex>
+  <div class="container sg">
+    <header class="sg__head">
+      <p class="sg__eyebrow">Sistema de Design · vivo</p>
+      <h1 class="sg__title wordmark">Besties</h1>
+      <p class="sg__intro">Cores, tipografia e componentes ativos. Se algo aqui parece certo, o site inteiro herda.</p>
+    </header>
+
+    <!-- CORES -->
+    <section class="sg__section">
+      <h2 class="sg__h2">Paleta</h2>
+      <div class="swatches">
+        {palette.map((c) => (
+          <div class="swatch">
+            <div class="swatch__chip" style={`background: rgb(var(${c.varName})); color: ${c.dark ? '#FFF7EC' : '#2D0335'}`}>
+              {c.hex}
+            </div>
+            <p class="swatch__name">{c.name}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- TIPOGRAFIA -->
+    <section class="sg__section">
+      <h2 class="sg__h2">Tipografia</h2>
+      <p class="sg__note">Display: <strong>Baloo 2</strong> · Corpo: <strong>Plus Jakarta Sans</strong></p>
+      <div class="type-scale">
+        {typeScale.map((t) => (
+          <div class="type-row">
+            <span class="type-row__meta">{t.label}<br /><code>{t.step}</code></span>
+            <span class="type-row__sample" style={`font-size: var(--${t.step}); font-family: ${t.step.startsWith('step-0') || t.step === 'step--1' ? 'var(--font-body)' : 'var(--font-display)'}; font-weight: ${t.step.startsWith('step-0') || t.step === 'step--1' ? 400 : 800}`}>
+              {t.sample}
+            </span>
+          </div>
+        ))}
+      </div>
+      <div class="type-signature">
+        <span class="wordmark" style="font-size: var(--step-5)">Besties</span>
+        <p class="sg__note">↑ Wordmark: amarelo + sombra 3D caramelo (assinatura da logo)</p>
+      </div>
+    </section>
+
+    <!-- BOTÕES -->
+    <section class="sg__section">
+      <h2 class="sg__h2">Botões</h2>
+
+      <div class="demo-row">
+        <Button variant="primary">Primário</Button>
+        <Button variant="secondary">Secundário</Button>
+        <Button variant="outline">Contorno</Button>
+        <Button variant="ghost">Fantasma</Button>
+      </div>
+
+      <p class="sg__note">Tamanhos</p>
+      <div class="demo-row demo-row--baseline">
+        <Button variant="primary" size="sm">Pequeno</Button>
+        <Button variant="primary" size="md">Médio</Button>
+        <Button variant="primary" size="lg">Grande</Button>
+      </div>
+
+      <p class="sg__note">Estados</p>
+      <div class="demo-row">
+        <Button variant="primary" loading>Enviando</Button>
+        <Button variant="primary" disabled>Desabilitado</Button>
+        <Button variant="secondary" iconOnly aria-label="Adicionar">＋</Button>
+        <Button href="/loja" variant="outline">Como link →</Button>
+      </div>
+
+      <p class="sg__note">Clique num primário para sentir o <em>squish</em> 🍪</p>
+    </section>
+
+    <!-- CARDS -->
+    <section class="sg__section">
+      <h2 class="sg__h2">Cards</h2>
+      <div class="card-grid">
+        <Card variant="elevated" interactive bite>
+          <img slot="media" src={cookieImg} alt="Cookie recheado de chocolate" loading="lazy" />
+          <h3 class="card-title">Nutella Overload</h3>
+          <p class="card-desc">Recheio duplo de avelã, massa macia e gotas de chocolate belga.</p>
+          <div slot="footer">
+            <span class="price">R$ 18,90</span>
+            <Button variant="primary" size="sm">Adicionar</Button>
+          </div>
+        </Card>
+
+        <Card variant="solid" interactive>
+          <img slot="media" src={cookieImg} alt="Cookie de brigadeiro" loading="lazy" />
+          <h3 class="card-title">Brigadeiro Cremoso</h3>
+          <p class="card-desc">Clássico brasileiro, recheado até a borda.</p>
+          <div slot="footer">
+            <span class="price">R$ 16,90</span>
+            <Button variant="primary" size="sm">Adicionar</Button>
+          </div>
+        </Card>
+
+        <Card variant="tint" padding="lg">
+          <h3 class="card-title">Card "tint"</h3>
+          <p class="card-desc">Superfície lilás para blocos de apoio, sem sombra. Bom para avisos e destaques leves.</p>
+          <div slot="footer"><Button variant="secondary" size="sm">Ação</Button></div>
+        </Card>
+
+        <Card variant="outline" padding="lg">
+          <h3 class="card-title">Card "outline"</h3>
+          <p class="card-desc">Contorno discreto para formulários e listas. O mais neutro do sistema.</p>
+        </Card>
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .sg { padding-block: var(--space-2xl) var(--space-3xl); }
+  .sg__head { text-align: center; margin-bottom: var(--space-3xl); }
+  .sg__eyebrow {
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-primary);
+    font-size: var(--step--1);
+  }
+  .sg__title { font-size: var(--step-6); }
+  .sg__intro { max-width: 52ch; margin: var(--space-md) auto 0; color: var(--color-ink-soft); font-size: var(--step-1); }
+
+  .sg__section { margin-bottom: var(--space-3xl); }
+  .sg__h2 {
+    font-size: var(--step-3);
+    margin-bottom: var(--space-lg);
+    padding-bottom: var(--space-xs);
+    border-bottom: 3px solid var(--color-accent);
+    display: inline-block;
+  }
+  .sg__note { color: var(--color-ink-soft); font-size: var(--step--1); margin: var(--space-lg) 0 var(--space-sm); }
+
+  /* swatches */
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--space-md); }
+  .swatch__chip {
+    height: 96px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: flex-end;
+    padding: var(--space-sm);
+    font-family: var(--font-body);
+    font-weight: var(--weight-bold);
+    font-size: var(--step--1);
+    box-shadow: var(--shadow-sm);
+  }
+  .swatch__name { margin-top: var(--space-xs); font-size: var(--step--1); color: var(--color-ink-soft); }
+
+  /* tipografia */
+  .type-scale { display: flex; flex-direction: column; gap: var(--space-lg); }
+  .type-row { display: grid; grid-template-columns: 130px 1fr; gap: var(--space-lg); align-items: baseline; }
+  .type-row__meta { font-size: var(--step--1); color: var(--color-ink-soft); }
+  .type-row__meta code { color: var(--color-primary); }
+  .type-row__sample { color: var(--color-ink); line-height: 1.1; }
+  .type-signature { margin-top: var(--space-2xl); padding: var(--space-xl); background: rgb(var(--besties-grape-500-rgb)); border-radius: var(--radius-lg); text-align: center; }
+  .type-signature .sg__note { color: rgb(var(--besties-cream-50-rgb) / 0.8); }
+
+  /* demos */
+  .demo-row { display: flex; flex-wrap: wrap; gap: var(--space-md); align-items: center; }
+  .demo-row--baseline { align-items: baseline; }
+
+  /* cards */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--space-lg); align-items: start; }
+  .card-title { font-size: var(--step-1); }
+  .card-desc { color: var(--color-ink-soft); font-size: var(--step--1); }
+  .price { font-family: var(--font-display); font-weight: 800; font-size: var(--step-1); color: var(--color-secondary); }
+
+  @media (max-width: 520px) {
+    .type-row { grid-template-columns: 1fr; gap: var(--space-2xs); }
+  }
+</style>
